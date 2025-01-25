@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hóa Đơn Tiền Nhà Trọ</title>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+        }
+
+        .invoice-container {
+            background-color: #fff;
+            width: 350px;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .invoice-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .invoice-header h1 {
+            font-size: 18px;
+            margin: 0;
+            color: #333;
+        }
+
+        .invoice-header small {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .invoice-body {
+            margin-bottom: 20px;
+        }
+
+        .invoice-body div {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .invoice-footer {
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .account {
+            margin-top: 10px;
+            font-size: 12px;
+            color: #555;
+        }
+
+        .download-button {
+            display: block;
+            margin: 20px auto 0;
+            padding: 10px 15px;
+            background-color: #4CAF50;
+            color: #fff;
+            text-align: center;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .download-button:hover {
+            background-color: #45a049;
+        }
+
+        .input-container {
+            margin-bottom: 20px;
+        }
+
+        .input-container label {
+            display: block;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .input-container input {
+            width: calc(100% - 20px);
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .update-button {
+            display: block;
+            margin: 0 auto 20px;
+            padding: 10px 15px;
+            background-color: #007BFF;
+            color: #fff;
+            text-align: center;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .update-button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="input-container">
+        <label for="room-number">Số phòng:</label>
+        <input type="text" id="room-number" placeholder="Nhập số phòng">
+
+        <label for="date">Ngày tháng:</label>
+        <input type="text" id="date" placeholder="Nhập ngày tháng">
+
+        <label for="old-index">Chỉ số cũ:</label>
+        <input type="number" id="old-index" placeholder="Nhập chỉ số cũ">
+
+        <label for="new-index">Chỉ số mới:</label>
+        <input type="number" id="new-index" placeholder="Nhập chỉ số mới">
+
+        <button class="update-button" onclick="updateInvoice()">Cập nhật hóa đơn</button>
+    </div>
+
+    <div id="invoice" class="invoice-container">
+        <div class="invoice-header">
+            <h1>HÓA ĐƠN TIỀN TRỌ</h1>
+            <small>Huỳnh Ngân</small>
+        </div>
+
+        <div class="invoice-body">
+            <div>
+                <span>Số phòng:</span>
+                <span id="invoice-room">Rỗng</span>
+            </div>
+            <div>
+                <span>Ngày tháng:</span>
+                <span id="invoice-date">Rỗng</span>
+            </div>
+            <div>
+                <span>Chỉ số cũ:</span>
+                <span id="invoice-old">Rỗng</span>
+            </div>
+            <div>
+                <span>Chỉ số mới:</span>
+                <span id="invoice-new">Rỗng</span>
+            </div>
+            <div>
+                <span>Tiêu thụ:</span>
+                <span id="invoice-usage">Rỗng x 3,000đ</span>
+            </div>
+            <div>
+                <span>Tiền điện:</span>
+                <span id="invoice-electric">Rỗng</span>
+            </div>
+            <div>
+                <span>Tiền nước:</span>
+                <span>50,000đ</span>
+            </div>
+            <div>
+                <span>Tiền phòng:</span>
+                <span>800,000đ</span>
+            </div>
+            <hr>
+            <div>
+                <strong>Tổng cộng:</strong>
+                <strong id="invoice-total">Rỗng</strong>
+            </div>
+        </div>
+
+        <div class="invoice-footer">
+            <p>TK: 9778847258</p>
+            <p>Vietcombank - Châu Đăng Vinh</p>
+        </div>
+    </div>
+
+    <a id="download-btn" class="download-button">Tải hóa đơn</a>
+
+    <script>
+        function updateInvoice() {
+            const roomNumber = document.getElementById('room-number').value;
+            const date = document.getElementById('date').value;
+            const oldIndex = parseInt(document.getElementById('old-index').value);
+            const newIndex = parseInt(document.getElementById('new-index').value);
+
+            const usage = newIndex - oldIndex;
+            const electricBill = usage * 3000;
+
+            document.getElementById('invoice-room').textContent = roomNumber || 'Trống';
+            document.getElementById('invoice-date').textContent = date || 'Trống';
+            document.getElementById('invoice-old').textContent = oldIndex || 'Trống';
+            document.getElementById('invoice-new').textContent = newIndex || 'Trống';
+            document.getElementById('invoice-usage').textContent = `${usage || 0} kWh x 3,000đ`;
+            document.getElementById('invoice-electric').textContent = `${electricBill.toLocaleString()}đ`;
+            document.getElementById('invoice-total').textContent = 
+            (usage * 3000 + 850000).toLocaleString('vi-VN') + 'đ';
+        }
+
+        document.getElementById('download-btn').addEventListener('click', function () {
+            const invoice = document.getElementById('invoice');
+
+            html2canvas(invoice).then(canvas => {
+                const link = document.createElement('a');
+                link.download = 'hoa_don_tien_nha.png';
+                link.href = canvas.toDataURL();
+                link.click();
+            });
+        });
+    </script>
+</body>
+</html>
